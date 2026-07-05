@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="{{ t.lang }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f3f0">
+    <title>Fridgly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/htmx.min.js" defer></script>
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <div class="app">
+        <main class="screen">
+            {% block content %}{% endblock %}
+        </main>
+        <nav class="tabbar">
+            <a class="tab {% if active_tab == "fridge" %}active{% endif %}" href="/">
+                <span class="tab-ic">🧊</span>{{ t.fridge }}
+            </a>
+            <a class="tab {% if active_tab == "meals" %}active{% endif %}" href="/meals">
+                <span class="tab-ic">🍽️</span>{{ t.meal_ideas }}
+            </a>
+            <a class="tab {% if active_tab == "shopping" %}active{% endif %}" href="/shopping">
+                <span class="tab-ic">🛒</span>{{ t.shopping }}
+            </a>
+        </nav>
+    </div>
+    {% block overlay %}{% endblock %}
+</body>
+</html>

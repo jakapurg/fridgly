@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fridgly-db
+    environment:
+      POSTGRES_USER: fridgly
+      POSTGRES_PASSWORD: fridgly
+      POSTGRES_DB: fridgly
+    ports:
+      - "5433:5432"
+    volumes:
+      - fridgly_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fridgly"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  fridgly_pgdata:

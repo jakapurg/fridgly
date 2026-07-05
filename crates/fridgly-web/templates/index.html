@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block content %}
+<div class="topbar">
+    <h1>Fridgly</h1>
+    <div class="topbar-actions">
+        {% call m::lang_switch(t.lang) %}
+        <button class="fab" type="button" onclick="openSheet()" aria-label="{{ t.add_item }}">+</button>
+    </div>
+</div>
+
+<div class="legend">
+    <span><span class="dot dot-expired"></span>{{ t.leg_expired }}</span>
+    <span><span class="dot dot-soon"></span>{{ t.leg_2d }}</span>
+    <span><span class="dot dot-week"></span>{{ t.leg_week }}</span>
+    <span><span class="dot dot-later"></span>{{ t.leg_later }}</span>
+</div>
+
+{% include "list.html" %}
+{% endblock %}
+
+{% block overlay %}
+<div id="sheet-overlay" class="sheet-overlay" onclick="closeSheet()"></div>
+<div id="add-sheet" class="sheet" role="dialog" aria-modal="true" aria-label="{{ t.add_item }}">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">{{ t.add_item }}</div>
+    <form id="add-form"
+          hx-post="/items"
+          hx-target="#fridge-list"
+          hx-swap="outerHTML"
+          hx-on::after-request="if(event.detail.successful){ this.reset(); resetSheetControls(); closeSheet(); }">
+        <div class="field">
+            <label for="add-name">{{ t.name }}</label>
+            <input id="add-name" class="input" type="text" name="name" placeholder="{{ t.name }}"
+                   autocomplete="off" required>
+        </div>
+        <div class="field">
+            <label>{{ t.quantity }}</label>
+            <div class="stepper">
+                <button type="button" onclick="stepQty(this, -1)" aria-label="–">–</button>
+                <input class="input qty-input" type="text" name="quantity" value="1"
+                       aria-label="{{ t.quantity }}" onfocus="this.select()">
+                <button type="button" onclick="stepQty(this, 1)" aria-label="+">+</button>
+            </div>
+        </div>
+        <div class="field">
+            <label>{{ t.expires }}</label>
+            <div class="chip-row" data-expiry-group>
+                <button type="button" class="chip" data-days="0" onclick="pickExpiry(this)">{{ t.today }}</button>
+                <button type="button" class="chip" data-days="3" onclick="pickExpiry(this)">{{ t.plus_3d }}</button>
+                <button type="button" class="chip" data-days="7" onclick="pickExpiry(this)">{{ t.plus_1wk }}</button>
+                <button type="button" class="chip" data-days="30" onclick="pickExpiry(this)">{{ t.plus_1mo }}</button>
+                <button type="button" class="chip" data-pick onclick="pickDate(this)">{{ t.pick_date }}</button>
+            </div>
+            <input class="input date-input hidden" type="date" name="expiry_date" aria-label="{{ t.expires }}">
+        </div>
+        <button type="submit" class="save-btn">{{ t.add_to_fridge }}</button>
+    </form>
+</div>
+{% endblock %}

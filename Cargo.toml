@@ -1,0 +1,60 @@
+# Workspace root. Individual crates live under `crates/`.
+# Shared dependency versions are declared once here and inherited via
+# `<dep>.workspace = true` so every crate stays on the same version.
+[workspace]
+resolver = "2"
+members = [
+    "crates/fridgly-domain",
+    "crates/fridgly-infra",
+    "crates/fridgly-web",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/extra-dev/fridgly"
+rust-version = "1.82"
+
+[workspace.dependencies]
+# Internal crates
+fridgly-domain = { path = "crates/fridgly-domain" }
+fridgly-infra = { path = "crates/fridgly-infra" }
+
+# Async runtime + web
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["fs", "trace"] }
+
+# Persistence
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "postgres",
+    "chrono",
+    "uuid",
+    "macros",
+    "migrate",
+] }
+
+# Templating
+askama = { version = "0.12", features = ["with-axum"] }
+askama_axum = "0.4"
+
+# Shared building blocks
+serde = { version = "1", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+async-trait = "0.1"
+thiserror = "1"
+anyhow = "1"
+
+# Observability + config
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dotenvy = "0.15"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

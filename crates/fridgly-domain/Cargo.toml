@@ -1,0 +1,14 @@
+[package]
+name = "fridgly-domain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Pure domain model and business rules for Fridgly. No web or database dependencies."
+
+[dependencies]
+chrono.workspace = true
+uuid.workspace = true
+serde.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,32 @@
+[package]
+name = "fridgly-web"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Fridgly web application: Axum HTTP server, htmx-driven UI and Askama templates."
+default-run = "fridgly-web"
+
+[[bin]]
+name = "fridgly-web"
+path = "src/main.rs"
+
+[dependencies]
+fridgly-domain.workspace = true
+fridgly-infra.workspace = true
+
+axum.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+askama.workspace = true
+askama_axum.workspace = true
+
+serde.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+thiserror.workspace = true
+
+tracing.workspace = true
+tracing-subscriber.workspace = true
+dotenvy.workspace = true
+anyhow.workspace = true

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block content %}
+<div class="topbar">
+    <h1>{{ t.meal_ideas }}</h1>
+    {% call m::lang_switch(t.lang) %}
+</div>
+
+<div class="field">
+    <label>{{ t.what_meal }}</label>
+    <div class="chip-row">
+        <button type="button" class="chip">{{ t.breakfast }}</button>
+        <button type="button" class="chip active">{{ t.lunch }}</button>
+        <button type="button" class="chip">{{ t.dinner }}</button>
+        <button type="button" class="chip">{{ t.snack }}</button>
+    </div>
+</div>
+
+<button type="button" class="save-btn" disabled style="opacity:.55">{{ t.suggest_meals }}</button>
+
+<div class="placeholder">
+    <div class="big">🍽️</div>
+    {{ t.meals_blurb }}
+    <div><span class="badge-soon">{{ t.coming_soon }}</span></div>
+</div>
+{% endblock %}

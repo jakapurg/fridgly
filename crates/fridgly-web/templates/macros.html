@@ -1,0 +1,46 @@
+{% macro row(v, t) %}
+<div class="item" id="item-{{ v.id() }}">
+    <span class="band band-{{ v.band() }}"></span>
+    <div class="row-body" role="button" tabindex="0"
+         hx-get="/items/{{ v.id() }}/edit" hx-target="#item-{{ v.id() }}" hx-swap="outerHTML"
+         aria-label="{{ t.edit }} {{ v.name() }}">
+        <div class="row-name">{{ v.name() }}</div>
+        <div class="row-meta">{{ v.expiry_label() }}</div>
+    </div>
+    <span class="qty-chip">{{ v.quantity() }}</span>
+    <div class="row-actions">
+        <button class="pill-btn" title="{{ t.used_title }}"
+                hx-post="/items/{{ v.id() }}/used" hx-target="#fridge-list" hx-swap="outerHTML">✓</button>
+        <button class="pill-btn" title="{{ t.toss_title }}"
+                hx-post="/items/{{ v.id() }}/tossed" hx-target="#fridge-list" hx-swap="outerHTML"
+                hx-confirm="{{ t.toss_confirm }} {{ v.name() }}?">🗑</button>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro edit_row(v, t) %}
+<form class="item editing" id="item-{{ v.id() }}"
+      hx-put="/items/{{ v.id() }}" hx-target="#fridge-list" hx-swap="outerHTML">
+    <span class="band band-{{ v.band() }}"></span>
+    <input type="hidden" name="category" value="{{ v.category() }}">
+    <div class="edit-fields">
+        <input class="input" type="text" name="name" value="{{ v.name() }}" required aria-label="{{ t.name }}">
+        <input class="input qty-input" type="text" name="quantity" value="{{ v.quantity() }}" aria-label="{{ t.quantity }}">
+    </div>
+    <div class="edit-fields">
+        <input class="input" type="date" name="expiry_date" value="{{ v.expiry_input() }}" aria-label="{{ t.expires }}">
+    </div>
+    <div class="row-actions" style="width:100%;justify-content:flex-end;gap:8px">
+        <button type="button" class="link-btn"
+                hx-get="/items/{{ v.id() }}/row" hx-target="#item-{{ v.id() }}" hx-swap="outerHTML">{{ t.cancel }}</button>
+        <button type="submit" class="save-btn small">{{ t.save }}</button>
+    </div>
+</form>
+{% endmacro %}
+
+{% macro lang_switch(cur) %}
+<div class="lang-switch" role="group" aria-label="Language">
+    <a href="/lang/en" class="{% if cur == "en" %}on{% endif %}">EN</a>
+    <a href="/lang/sl" class="{% if cur == "sl" %}on{% endif %}">SL</a>
+</div>
+{% endmacro %}

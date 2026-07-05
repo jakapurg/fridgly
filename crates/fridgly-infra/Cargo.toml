@@ -1,0 +1,16 @@
+[package]
+name = "fridgly-infra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Infrastructure adapters for Fridgly: Postgres-backed repositories, connection pool and migrations."
+
+[dependencies]
+fridgly-domain.workspace = true
+
+sqlx.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+tracing.workspace = true

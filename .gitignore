@@ -1,0 +1,9 @@
+# Rust build artifacts
+/target
+
+# Local environment (secrets, machine-specific) — commit .env.example instead
+.env
+
+# Editor / OS noise
+.DS_Store
+*.swp

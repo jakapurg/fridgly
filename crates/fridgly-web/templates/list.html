@@ -1,0 +1,8 @@
+{% import "macros.html" as m %}
+<section id="fridge-list" class="list">
+    {% if items.is_empty() %}
+        <p class="empty">{{ t.empty }}</p>
+    {% else %}
+        {% for v in items %}{% call m::row(v, t) %}{% endfor %}
+    {% endif %}
+</section>
