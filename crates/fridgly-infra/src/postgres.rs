@@ -75,6 +75,30 @@ impl ItemRepository for PgItemRepository {
         rows.into_iter().map(Item::try_from).collect()
     }
 
+    async fn search_in_fridge(&self, query: &str) -> Result<Vec<Item>, RepositoryError> {
+        let trimmed = query.trim();
+        if trimmed.is_empty() {
+            return self.list_in_fridge().await;
+        }
+        // Escape LIKE wildcards so the user's text is matched literally.
+        let escaped = trimmed
+            .replace('\\', "\\\\")
+            .replace('%', "\\%")
+            .replace('_', "\\_");
+        let pattern = format!("%{escaped}%");
+        let sql = format!(
+            "SELECT {COLUMNS} FROM items \
+             WHERE status = 'in_fridge' AND name ILIKE $1 ESCAPE '\\' \
+             ORDER BY expiry_date ASC NULLS LAST, name ASC"
+        );
+        let rows = sqlx::query_as::<_, ItemRow>(&sql)
+            .bind(pattern)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(backend)?;
+        rows.into_iter().map(Item::try_from).collect()
+    }
+
     async fn find(&self, id: Uuid) -> Result<Option<Item>, RepositoryError> {
         let sql = format!("SELECT {COLUMNS} FROM items WHERE id = $1");
         let row = sqlx::query_as::<_, ItemRow>(&sql)

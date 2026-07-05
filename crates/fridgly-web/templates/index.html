@@ -1,13 +1,18 @@
 {% extends "base.html" %}
-{% import "macros.html" as m %}
 
 {% block content %}
 <div class="topbar">
     <h1>Fridgly</h1>
-    <div class="topbar-actions">
-        {% call m::lang_switch(t.lang) %}
-        <button class="fab" type="button" onclick="openSheet()" aria-label="{{ t.add_item }}">+</button>
-    </div>
+    <button class="fab" type="button" onclick="openSheet()" aria-label="{{ t.add_item }}">+</button>
+</div>
+
+<div class="search-bar">
+    <input class="input search-input" type="search" name="q" placeholder="{{ t.search }}"
+           autocomplete="off" aria-label="{{ t.search }}"
+           hx-get="/items/search"
+           hx-trigger="input changed delay:200ms, search"
+           hx-target="#fridge-list"
+           hx-swap="outerHTML">
 </div>
 
 <div class="legend">

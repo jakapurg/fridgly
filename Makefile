@@ -2,7 +2,7 @@
 
 .DEFAULT_GOAL := help
 
-.PHONY: help run test fmt fmt-check lint check db-up db-down
+.PHONY: help run dev test fmt fmt-check lint check db-up db-down
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -10,6 +10,10 @@ help: ## Show this help
 
 run: ## Run the web server
 	cargo run
+
+dev: ## Hot-reload dev server (rebuild + restart + browser refresh on change)
+	@command -v cargo-watch >/dev/null 2>&1 || { echo "cargo-watch not found. Install with: cargo install cargo-watch"; exit 1; }
+	cargo watch -w crates -w migrations -x 'run -p fridgly-web --features dev'
 
 test: ## Run all tests
 	cargo test

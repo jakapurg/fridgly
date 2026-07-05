@@ -1,7 +1,11 @@
 {% import "macros.html" as m %}
 <section id="fridge-list" class="list">
     {% if items.is_empty() %}
+        {% if is_search %}
+        <p class="empty">{{ t.no_matches }}</p>
+        {% else %}
         <p class="empty">{{ t.empty }}</p>
+        {% endif %}
     {% else %}
         {% for v in items %}{% call m::row(v, t) %}{% endfor %}
     {% endif %}

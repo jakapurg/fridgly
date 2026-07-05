@@ -20,6 +20,11 @@ pub trait ItemRepository: Send + Sync + 'static {
     /// (soonest expiry first; items without a date last).
     async fn list_in_fridge(&self) -> Result<Vec<Item>>;
 
+    /// In-fridge items whose name matches `query` (case-insensitive substring),
+    /// in the same ordering as [`list_in_fridge`]. An empty/whitespace query
+    /// returns everything.
+    async fn search_in_fridge(&self, query: &str) -> Result<Vec<Item>>;
+
     /// Fetch a single item by id, regardless of status.
     async fn find(&self, id: Uuid) -> Result<Option<Item>>;
 

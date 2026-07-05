@@ -30,3 +30,10 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 dotenvy.workspace = true
 anyhow.workspace = true
+
+# Development-only: browser live-reload. Enabled via the `dev` feature (see
+# `make dev`); never compiled into release builds.
+tower-livereload = { version = "0.9", optional = true }
+
+[features]
+dev = ["dep:tower-livereload"]

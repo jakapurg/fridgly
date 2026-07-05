@@ -54,6 +54,7 @@ impl ItemVm {
 pub struct IndexTemplate {
     pub active_tab: &'static str,
     pub t: Ui,
+    pub is_search: bool,
     pub items: Vec<ItemVm>,
 }
 
@@ -61,6 +62,9 @@ pub struct IndexTemplate {
 #[template(path = "list.html")]
 pub struct ListTemplate {
     pub t: Ui,
+    /// True when the list is the result of a search, so an empty result shows
+    /// "no matches" rather than "fridge is empty".
+    pub is_search: bool,
     pub items: Vec<ItemVm>,
 }
 

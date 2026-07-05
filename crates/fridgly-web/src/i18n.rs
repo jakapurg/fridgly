@@ -1,9 +1,10 @@
 //! Web-layer internationalisation: the UI string catalog and per-request locale
 //! detection.
 //!
-//! Locale is resolved in this order: the `lang` cookie (set by the language
-//! switcher) → the `Accept-Language` header → English. Expiry labels are
-//! localised in `fridgly-domain`; this module covers the UI chrome.
+//! Locale is resolved in this order: the `lang` cookie (set via `/lang/:code`)
+//! → the `Accept-Language` header → the default ([`Locale::default`], currently
+//! Slovene). Expiry labels are localised in `fridgly-domain`; this module covers
+//! the UI chrome.
 
 use axum::async_trait;
 use axum::extract::FromRequestParts;
@@ -35,7 +36,9 @@ pub struct Ui {
     pub plus_1mo: &'static str,
     pub pick_date: &'static str,
     pub add_to_fridge: &'static str,
+    pub search: &'static str,
     pub empty: &'static str,
+    pub no_matches: &'static str,
 
     // Legend
     pub leg_expired: &'static str,
@@ -93,7 +96,9 @@ const EN: Ui = Ui {
     plus_1mo: "+1mo",
     pick_date: "📅 pick date",
     add_to_fridge: "Add to fridge",
+    search: "Search",
     empty: "Fridge is empty. Add something above 👆",
+    no_matches: "No matches",
     leg_expired: "expired",
     leg_2d: "≤2d",
     leg_week: "this wk",
@@ -132,7 +137,9 @@ const SL: Ui = Ui {
     plus_1mo: "+1m",
     pick_date: "📅 izberi datum",
     add_to_fridge: "Dodaj v hladilnik",
+    search: "Išči",
     empty: "Hladilnik je prazen. Dodaj kaj zgoraj 👆",
+    no_matches: "Ni zadetkov",
     leg_expired: "poteklo",
     leg_2d: "≤2d",
     leg_week: "ta teden",

@@ -5,10 +5,11 @@
 //! correctly re-sorted view. Every handler resolves the active locale so both
 //! the expiry labels and UI chrome render in the user's language.
 
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::response::{IntoResponse, Response};
 use axum::Form;
-use fridgly_domain::{ItemStatus, ItemView, Locale};
+use fridgly_domain::{Item, ItemStatus, ItemView, Locale};
+use serde::Deserialize;
 use uuid::Uuid;
 
 use super::forms::ItemForm;
@@ -25,7 +26,31 @@ pub async fn index(State(state): State<AppState>, ReqLocale(locale): ReqLocale) 
     Ok(IndexTemplate {
         active_tab: "fridge",
         t: Ui::for_locale(locale),
+        is_search: false,
         items,
+    }
+    .into_response())
+}
+
+#[derive(Deserialize)]
+pub struct SearchQuery {
+    #[serde(default)]
+    q: String,
+}
+
+/// Live search: returns the list fragment filtered by name. Empty query returns
+/// the full list.
+pub async fn search(
+    State(state): State<AppState>,
+    ReqLocale(locale): ReqLocale,
+    Query(params): Query<SearchQuery>,
+) -> Handler {
+    let today = state.today();
+    let items = state.items().search_in_fridge(&params.q).await?;
+    Ok(ListTemplate {
+        t: Ui::for_locale(locale),
+        is_search: !params.q.trim().is_empty(),
+        items: to_view_models(items, today, locale),
     }
     .into_response())
 }
@@ -117,6 +142,7 @@ async fn render_list(state: &AppState, locale: Locale) -> Handler {
     let items = load_view_models(state, locale).await?;
     Ok(ListTemplate {
         t: Ui::for_locale(locale),
+        is_search: false,
         items,
     }
     .into_response())
@@ -125,10 +151,14 @@ async fn render_list(state: &AppState, locale: Locale) -> Handler {
 async fn load_view_models(state: &AppState, locale: Locale) -> Result<Vec<ItemVm>, AppError> {
     let today = state.today();
     let items = state.items().list_in_fridge().await?;
-    Ok(items
+    Ok(to_view_models(items, today, locale))
+}
+
+fn to_view_models(items: Vec<Item>, today: chrono::NaiveDate, locale: Locale) -> Vec<ItemVm> {
+    items
         .into_iter()
         .map(|item| ItemVm::new(ItemView::new(item, today, locale)))
-        .collect())
+        .collect()
 }
 
 async fn load_one(state: &AppState, id: Uuid, locale: Locale) -> Result<ItemVm, AppError> {

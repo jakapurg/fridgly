@@ -1,13 +1,9 @@
 {% extends "base.html" %}
-{% import "macros.html" as m %}
 
 {% block content %}
 <div class="topbar">
     <h1>{{ t.shopping_list }}</h1>
-    <div class="topbar-actions">
-        {% call m::lang_switch(t.lang) %}
-        <button class="fab" type="button" disabled style="opacity:.3" aria-label="+">+</button>
-    </div>
+    <button class="fab" type="button" disabled style="opacity:.3" aria-label="+">+</button>
 </div>
 
 <div class="section-title">{{ t.running_low }}</div>

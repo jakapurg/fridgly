@@ -7,8 +7,8 @@
 /// A language the app can render in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Locale {
-    #[default]
     En,
+    #[default]
     Sl,
 }
 
@@ -44,7 +44,7 @@ mod tests {
     }
 
     #[test]
-    fn default_is_english() {
-        assert_eq!(Locale::default(), Locale::En);
+    fn default_is_slovene() {
+        assert_eq!(Locale::default(), Locale::Sl);
     }
 }

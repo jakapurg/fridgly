@@ -1,10 +1,8 @@
 {% extends "base.html" %}
-{% import "macros.html" as m %}
 
 {% block content %}
 <div class="topbar">
     <h1>{{ t.meal_ideas }}</h1>
-    {% call m::lang_switch(t.lang) %}
 </div>
 
 <div class="field">

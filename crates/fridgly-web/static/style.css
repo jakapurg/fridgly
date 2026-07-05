@@ -120,6 +120,29 @@ body {
     transform: scale(0.95);
 }
 
+/* ---- Search bar ---- */
+.search-bar {
+    position: relative;
+    margin: 4px 14px 8px;
+}
+.search-ic {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.search-input {
+    padding-left: 34px;
+    background: #f6f5f2;
+    border-radius: 10px;
+}
+.search-input::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
 /* ---- Legend ---- */
 .legend {
     display: flex;

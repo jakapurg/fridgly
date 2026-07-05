@@ -10,6 +10,7 @@ use crate::state::AppState;
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(handlers::index))
+        .route("/items/search", get(handlers::search))
         .route("/items", post(handlers::create))
         .route("/items/:id", put(handlers::update).delete(handlers::delete))
         .route("/items/:id/used", post(handlers::mark_used))
