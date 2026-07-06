@@ -14,7 +14,10 @@ mod state;
 use std::sync::Arc;
 
 use anyhow::Context;
-use fridgly_infra::PgItemRepository;
+use fridgly_domain::MealSuggester;
+use fridgly_infra::{
+    ClaudeMealSuggester, OpenFoodFactsCatalog, PgItemRepository, UnavailableMealSuggester,
+};
 
 use crate::config::Config;
 use crate::state::AppState;
@@ -35,7 +38,21 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("database ready, migrations applied");
 
     let repository = Arc::new(PgItemRepository::new(pool));
-    let state = AppState::new(repository);
+    let catalog = Arc::new(OpenFoodFactsCatalog::new());
+    let meals: Arc<dyn MealSuggester> = match config.anthropic_api_key.clone() {
+        Some(api_key) => {
+            tracing::info!(model = %config.anthropic_model, "AI meal suggestions enabled");
+            Arc::new(ClaudeMealSuggester::new(
+                api_key,
+                config.anthropic_model.clone(),
+            ))
+        }
+        None => {
+            tracing::warn!("ANTHROPIC_API_KEY not set — meal suggestions disabled");
+            Arc::new(UnavailableMealSuggester)
+        }
+    };
+    let state = AppState::new(repository, catalog, meals);
     let router = app::build_router(state, &config.static_dir);
 
     let listener = tokio::net::TcpListener::bind(&config.bind_addr)

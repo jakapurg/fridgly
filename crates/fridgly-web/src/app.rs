@@ -12,7 +12,9 @@ use crate::state::AppState;
 pub fn build_router(state: AppState, static_dir: &str) -> Router {
     let router = Router::new()
         .merge(features::items::routes())
+        .merge(features::meals::routes())
         .merge(features::pages::routes())
+        .merge(features::products::routes())
         .nest_service("/static", ServeDir::new(static_dir))
         .layer(TraceLayer::new_for_http())
         .with_state(state);

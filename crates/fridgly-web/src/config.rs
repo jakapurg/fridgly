@@ -14,6 +14,11 @@ pub struct Config {
     pub db_max_connections: u32,
     /// Directory served at `/static`.
     pub static_dir: String,
+    /// Anthropic API key for AI meal suggestions. When absent, meal
+    /// suggestions are disabled (the screen shows a "not set up" message).
+    pub anthropic_api_key: Option<String>,
+    /// Claude model used for meal suggestions.
+    pub anthropic_model: String,
 }
 
 impl Config {
@@ -28,8 +33,15 @@ impl Config {
                 .parse()
                 .map_err(|_| ConfigError::Invalid("DB_MAX_CONNECTIONS"))?,
             static_dir: optional("STATIC_DIR", "crates/fridgly-web/static"),
+            anthropic_api_key: optional_var("ANTHROPIC_API_KEY"),
+            anthropic_model: optional("ANTHROPIC_MODEL", "claude-opus-4-8"),
         })
     }
+}
+
+/// Read an optional variable, returning `None` when unset or empty.
+fn optional_var(key: &str) -> Option<String> {
+    std::env::var(key).ok().filter(|v| !v.is_empty())
 }
 
 fn require(key: &'static str) -> Result<String, ConfigError> {

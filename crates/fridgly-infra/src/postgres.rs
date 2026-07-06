@@ -2,7 +2,9 @@
 
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDate, Utc};
-use fridgly_domain::{Item, ItemChanges, ItemRepository, ItemStatus, NewItem, RepositoryError};
+use fridgly_domain::{
+    Item, ItemChanges, ItemRepository, ItemStatus, NewItem, RepositoryError, Subunit,
+};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
@@ -25,6 +27,9 @@ struct ItemRow {
     id: Uuid,
     name: String,
     quantity: String,
+    unit: Option<String>,
+    subunit_remaining: Option<i32>,
+    subunit_unit: Option<String>,
     category: Option<String>,
     expiry_date: Option<NaiveDate>,
     status: String,
@@ -44,6 +49,8 @@ impl TryFrom<ItemRow> for Item {
             id: row.id,
             name: row.name,
             quantity: row.quantity,
+            unit: row.unit,
+            subunit: Subunit::new(row.subunit_remaining, row.subunit_unit),
             category: row.category,
             expiry_date: row.expiry_date,
             status,
@@ -54,7 +61,16 @@ impl TryFrom<ItemRow> for Item {
 }
 
 /// Columns selected everywhere, kept in one place to stay consistent.
-const COLUMNS: &str = "id, name, quantity, category, expiry_date, status, added_at, updated_at";
+const COLUMNS: &str = "id, name, quantity, unit, subunit_remaining, subunit_unit, \
+                       category, expiry_date, status, added_at, updated_at";
+
+/// Split a domain [`Subunit`] into the two flat columns Postgres stores.
+fn subunit_columns(subunit: Option<Subunit>) -> (Option<i32>, Option<String>) {
+    match subunit {
+        Some(s) => (Some(s.remaining), s.unit),
+        None => (None, None),
+    }
+}
 
 fn backend<E: std::fmt::Display>(e: E) -> RepositoryError {
     RepositoryError::Backend(e.to_string())
@@ -110,13 +126,17 @@ impl ItemRepository for PgItemRepository {
     }
 
     async fn create(&self, new_item: NewItem) -> Result<Item, RepositoryError> {
+        let (subunit_remaining, subunit_unit) = subunit_columns(new_item.subunit);
         let sql = format!(
-            "INSERT INTO items (name, quantity, category, expiry_date) \
-             VALUES ($1, $2, $3, $4) RETURNING {COLUMNS}"
+            "INSERT INTO items (name, quantity, unit, subunit_remaining, subunit_unit, category, expiry_date) \
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING {COLUMNS}"
         );
         let row = sqlx::query_as::<_, ItemRow>(&sql)
             .bind(new_item.name)
             .bind(new_item.quantity)
+            .bind(new_item.unit)
+            .bind(subunit_remaining)
+            .bind(subunit_unit)
             .bind(new_item.category)
             .bind(new_item.expiry_date)
             .fetch_one(&self.pool)
@@ -126,15 +146,20 @@ impl ItemRepository for PgItemRepository {
     }
 
     async fn update(&self, id: Uuid, changes: ItemChanges) -> Result<Item, RepositoryError> {
+        let (subunit_remaining, subunit_unit) = subunit_columns(changes.subunit);
         let sql = format!(
             "UPDATE items \
-             SET name = $2, quantity = $3, category = $4, expiry_date = $5, updated_at = now() \
+             SET name = $2, quantity = $3, unit = $4, subunit_remaining = $5, subunit_unit = $6, \
+                 category = $7, expiry_date = $8, updated_at = now() \
              WHERE id = $1 AND status = 'in_fridge' RETURNING {COLUMNS}"
         );
         let row = sqlx::query_as::<_, ItemRow>(&sql)
             .bind(id)
             .bind(changes.name)
             .bind(changes.quantity)
+            .bind(changes.unit)
+            .bind(subunit_remaining)
+            .bind(subunit_unit)
             .bind(changes.category)
             .bind(changes.expiry_date)
             .fetch_optional(&self.pool)

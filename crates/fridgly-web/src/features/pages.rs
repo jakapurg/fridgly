@@ -1,6 +1,7 @@
-//! Static placeholder screens for tabs that aren't functional yet
-//! (Meal ideas, Shopping list), plus the language switcher endpoint. These
-//! exist so the bottom navigation from the wireframe is complete.
+//! Static placeholder screens for tabs that aren't functional yet (the Shopping
+//! list), plus the language switcher endpoint. These exist so the bottom
+//! navigation from the wireframe is complete. (The Meal ideas tab is now a real
+//! feature — see `features::meals`.)
 
 use askama::Template;
 use axum::extract::Path;
@@ -15,13 +16,6 @@ use crate::i18n::{ReqLocale, Ui};
 use crate::state::AppState;
 
 #[derive(Template)]
-#[template(path = "meals.html")]
-struct MealsTemplate {
-    active_tab: &'static str,
-    t: Ui,
-}
-
-#[derive(Template)]
 #[template(path = "shopping.html")]
 struct ShoppingTemplate {
     active_tab: &'static str,
@@ -30,17 +24,8 @@ struct ShoppingTemplate {
 
 pub fn routes() -> Router<AppState> {
     Router::new()
-        .route("/meals", get(meals))
         .route("/shopping", get(shopping))
         .route("/lang/:code", get(set_lang))
-}
-
-async fn meals(ReqLocale(locale): ReqLocale) -> Response {
-    MealsTemplate {
-        active_tab: "meals",
-        t: Ui::for_locale(locale),
-    }
-    .into_response()
 }
 
 async fn shopping(ReqLocale(locale): ReqLocale) -> Response {

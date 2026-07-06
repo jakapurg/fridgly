@@ -3,7 +3,12 @@
 {% block content %}
 <div class="topbar">
     <h1>Fridgly</h1>
-    <button class="fab" type="button" onclick="openSheet()" aria-label="{{ t.add_item }}">+</button>
+    <div class="topbar-actions">
+        <button class="fab fab-scan" type="button" onclick="openScanner()" aria-label="{{ t.scan }}">
+            <span aria-hidden="true">▮▮</span>
+        </button>
+        <button class="fab" type="button" onclick="openSheet()" aria-label="{{ t.add_item }}">+</button>
+    </div>
 </div>
 
 <div class="search-bar">
@@ -39,14 +44,29 @@
             <label for="add-name">{{ t.name }}</label>
             <input id="add-name" class="input" type="text" name="name" placeholder="{{ t.name }}"
                    autocomplete="off" required>
+            <input id="add-category" type="hidden" name="category">
         </div>
         <div class="field">
             <label>{{ t.quantity }}</label>
-            <div class="stepper">
-                <button type="button" onclick="stepQty(this, -1)" aria-label="–">–</button>
-                <input class="input qty-input" type="text" name="quantity" value="1"
-                       aria-label="{{ t.quantity }}" onfocus="this.select()">
-                <button type="button" onclick="stepQty(this, 1)" aria-label="+">+</button>
+            <div class="qty-row">
+                <div class="stepper">
+                    <button type="button" onclick="stepQty(this, -1)" aria-label="–">–</button>
+                    <input class="input qty-input" type="text" name="quantity" value="1"
+                           aria-label="{{ t.quantity }}" onfocus="this.select()">
+                    <button type="button" onclick="stepQty(this, 1)" aria-label="+">+</button>
+                </div>
+                <input class="input unit-input" type="text" name="unit" placeholder="{{ t.unit }}"
+                       aria-label="{{ t.unit }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="field">
+            <label>{{ t.subunit }}</label>
+            <div class="qty-row">
+                <input class="input sub-qty-input" type="text" name="subunit_remaining"
+                       inputmode="numeric" placeholder="{{ t.left }}" aria-label="{{ t.subunit }}"
+                       autocomplete="off">
+                <input class="input" type="text" name="subunit_unit" placeholder="{{ t.subunit_unit }}"
+                       aria-label="{{ t.subunit_unit }}" autocomplete="off">
             </div>
         </div>
         <div class="field">
@@ -61,6 +81,30 @@
             <input class="input date-input hidden" type="date" name="expiry_date" aria-label="{{ t.expires }}">
         </div>
         <button type="submit" class="save-btn">{{ t.add_to_fridge }}</button>
+    </form>
+</div>
+
+<div id="scan-overlay" class="sheet-overlay" onclick="closeScanner()"></div>
+<div id="scan-sheet" class="sheet scan-sheet" role="dialog" aria-modal="true" aria-label="{{ t.scan_title }}"
+     data-msg-scanning="{{ t.scan_hint }}"
+     data-msg-looking="{{ t.scan_looking }}"
+     data-msg-notfound="{{ t.scan_notfound }}"
+     data-msg-error="{{ t.scan_error }}"
+     data-msg-unsupported="{{ t.scan_unsupported }}">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">{{ t.scan_title }}</div>
+    <div class="scan-viewport">
+        <video id="scan-video" playsinline muted></video>
+        <div class="scan-reticle"></div>
+    </div>
+    <p id="scan-status" class="scan-status">{{ t.scan_hint }}</p>
+    <form class="scan-manual" onsubmit="submitManualBarcode(event)">
+        <label for="scan-input" class="scan-manual-label">{{ t.scan_manual }}</label>
+        <div class="scan-manual-row">
+            <input id="scan-input" class="input" type="text" inputmode="numeric" pattern="[0-9]*"
+                   name="barcode" placeholder="{{ t.enter_barcode }}" autocomplete="off">
+            <button type="submit" class="save-btn small">{{ t.lookup }}</button>
+        </div>
     </form>
 </div>
 {% endblock %}

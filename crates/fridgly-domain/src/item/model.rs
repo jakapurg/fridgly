@@ -50,12 +50,40 @@ impl FromStr for ItemStatus {
     }
 }
 
+/// A count of individual pieces remaining inside a container item, e.g. the
+/// "3 eggs" left in a packet. Tracked separately from [`Item::quantity`], which
+/// counts the containers themselves.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Subunit {
+    /// How many pieces are left. Never negative.
+    pub remaining: i32,
+    /// What the pieces are (e.g. `"eggs"`), if named.
+    pub unit: Option<String>,
+}
+
+impl Subunit {
+    /// Build a subunit from an optional remaining count and unit label.
+    ///
+    /// Returns `None` when no remaining count is supplied (there is nothing to
+    /// track); a negative count is clamped to zero.
+    pub fn new(remaining: Option<i32>, unit: Option<String>) -> Option<Self> {
+        remaining.map(|remaining| Self {
+            remaining: remaining.max(0),
+            unit: normalize_optional(unit),
+        })
+    }
+}
+
 /// A persisted fridge item.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Item {
     pub id: Uuid,
     pub name: String,
     pub quantity: String,
+    /// Outer unit paired with `quantity`, e.g. `"packet"` in "1 packet".
+    pub unit: Option<String>,
+    /// Individual pieces remaining inside the container, if tracked.
+    pub subunit: Option<Subunit>,
     pub category: Option<String>,
     pub expiry_date: Option<NaiveDate>,
     pub status: ItemStatus,
@@ -71,6 +99,8 @@ pub struct Item {
 pub struct NewItem {
     pub name: String,
     pub quantity: String,
+    pub unit: Option<String>,
+    pub subunit: Option<Subunit>,
     pub category: Option<String>,
     pub expiry_date: Option<NaiveDate>,
 }
@@ -81,6 +111,8 @@ impl NewItem {
     pub fn new(
         name: impl Into<String>,
         quantity: Option<String>,
+        unit: Option<String>,
+        subunit: Option<Subunit>,
         category: Option<String>,
         expiry_date: Option<NaiveDate>,
     ) -> Result<Self, DomainError> {
@@ -91,6 +123,8 @@ impl NewItem {
         Ok(Self {
             name,
             quantity: normalize_quantity(quantity),
+            unit: normalize_optional(unit),
+            subunit,
             category: normalize_optional(category),
             expiry_date,
         })
@@ -102,6 +136,8 @@ impl NewItem {
 pub struct ItemChanges {
     pub name: String,
     pub quantity: String,
+    pub unit: Option<String>,
+    pub subunit: Option<Subunit>,
     pub category: Option<String>,
     pub expiry_date: Option<NaiveDate>,
 }
@@ -110,6 +146,8 @@ impl ItemChanges {
     pub fn new(
         name: impl Into<String>,
         quantity: Option<String>,
+        unit: Option<String>,
+        subunit: Option<Subunit>,
         category: Option<String>,
         expiry_date: Option<NaiveDate>,
     ) -> Result<Self, DomainError> {
@@ -120,6 +158,8 @@ impl ItemChanges {
         Ok(Self {
             name,
             quantity: normalize_quantity(quantity),
+            unit: normalize_optional(unit),
+            subunit,
             category: normalize_optional(category),
             expiry_date,
         })
@@ -146,17 +186,53 @@ mod tests {
     #[test]
     fn new_item_rejects_blank_name() {
         assert_eq!(
-            NewItem::new("   ", None, None, None).unwrap_err(),
+            NewItem::new("   ", None, None, None, None, None).unwrap_err(),
             DomainError::Required { field: "name" }
         );
     }
 
     #[test]
     fn new_item_defaults_quantity_and_trims() {
-        let item = NewItem::new("  Milk  ", Some("  ".into()), Some("".into()), None).unwrap();
+        let item = NewItem::new(
+            "  Milk  ",
+            Some("  ".into()),
+            Some("  ".into()),
+            None,
+            Some("".into()),
+            None,
+        )
+        .unwrap();
         assert_eq!(item.name, "Milk");
         assert_eq!(item.quantity, "1");
+        assert_eq!(item.unit, None);
+        assert_eq!(item.subunit, None);
         assert_eq!(item.category, None);
+    }
+
+    #[test]
+    fn new_item_carries_container_and_subunit() {
+        let subunit = Subunit::new(Some(3), Some("  eggs  ".into()));
+        let item = NewItem::new(
+            "Eggs",
+            Some("1".into()),
+            Some(" packet ".into()),
+            subunit,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(item.unit.as_deref(), Some("packet"));
+        let subunit = item.subunit.expect("subunit present");
+        assert_eq!(subunit.remaining, 3);
+        assert_eq!(subunit.unit.as_deref(), Some("eggs"));
+    }
+
+    #[test]
+    fn subunit_requires_a_count_and_clamps_negatives() {
+        assert!(Subunit::new(None, Some("eggs".into())).is_none());
+        let clamped = Subunit::new(Some(-4), None).expect("count present");
+        assert_eq!(clamped.remaining, 0);
+        assert_eq!(clamped.unit, None);
     }
 
     #[test]

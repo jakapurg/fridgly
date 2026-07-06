@@ -7,7 +7,10 @@
         <div class="row-name">{{ v.name() }}</div>
         <div class="row-meta">{{ v.expiry_label() }}</div>
     </div>
-    <span class="qty-chip">{{ v.quantity() }}</span>
+    <div class="qty-col">
+        <span class="qty-chip">{{ v.qty_display() }}</span>
+        {% if v.has_subunit() %}<span class="qty-chip sub">{{ v.subunit_display() }} {{ t.left }}</span>{% endif %}
+    </div>
     <div class="row-actions">
         <button class="pill-btn" title="{{ t.used_title }}"
                 hx-post="/items/{{ v.id() }}/used" hx-target="#fridge-list" hx-swap="outerHTML">✓</button>
@@ -26,6 +29,11 @@
     <div class="edit-fields">
         <input class="input" type="text" name="name" value="{{ v.name() }}" required aria-label="{{ t.name }}">
         <input class="input qty-input" type="text" name="quantity" value="{{ v.quantity() }}" aria-label="{{ t.quantity }}">
+        <input class="input unit-input" type="text" name="unit" value="{{ v.unit() }}" placeholder="{{ t.unit }}" aria-label="{{ t.unit }}">
+    </div>
+    <div class="edit-fields">
+        <input class="input sub-qty-input" type="text" name="subunit_remaining" value="{{ v.subunit_remaining_input() }}" inputmode="numeric" placeholder="{{ t.left }}" aria-label="{{ t.subunit }}">
+        <input class="input" type="text" name="subunit_unit" value="{{ v.subunit_unit() }}" placeholder="{{ t.subunit_unit }}" aria-label="{{ t.subunit_unit }}">
     </div>
     <div class="edit-fields">
         <input class="input" type="date" name="expiry_date" value="{{ v.expiry_input() }}" aria-label="{{ t.expires }}">

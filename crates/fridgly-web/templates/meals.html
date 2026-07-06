@@ -5,21 +5,37 @@
     <h1>{{ t.meal_ideas }}</h1>
 </div>
 
-<div class="field">
-    <label>{{ t.what_meal }}</label>
-    <div class="chip-row">
-        <button type="button" class="chip">{{ t.breakfast }}</button>
-        <button type="button" class="chip active">{{ t.lunch }}</button>
-        <button type="button" class="chip">{{ t.dinner }}</button>
-        <button type="button" class="chip">{{ t.snack }}</button>
+<form id="meal-form">
+    <div class="field">
+        <label>{{ t.what_meal }}</label>
+        <div class="chip-row" data-meal-group>
+            <button type="button" class="chip" data-meal="breakfast" onclick="pickMeal(this)">{{ t.breakfast }}</button>
+            <button type="button" class="chip active" data-meal="lunch" onclick="pickMeal(this)">{{ t.lunch }}</button>
+            <button type="button" class="chip" data-meal="dinner" onclick="pickMeal(this)">{{ t.dinner }}</button>
+            <button type="button" class="chip" data-meal="snack" onclick="pickMeal(this)">{{ t.snack }}</button>
+        </div>
+        <input type="hidden" name="meal_type" id="meal-type" value="lunch">
     </div>
+
+    <button type="button" class="save-btn"
+            hx-post="/meals/suggest"
+            hx-include="#meal-form"
+            hx-target="#meal-results"
+            hx-swap="innerHTML"
+            hx-indicator="#meal-loading"
+            hx-disabled-elt="this">
+        {{ t.suggest_meals }}
+    </button>
+</form>
+
+<div id="meal-loading" class="htmx-indicator meal-loading">
+    <span class="spinner"></span> {{ t.meals_loading }}
 </div>
 
-<button type="button" class="save-btn" disabled style="opacity:.55">{{ t.suggest_meals }}</button>
-
-<div class="placeholder">
-    <div class="big">🍽️</div>
-    {{ t.meals_blurb }}
-    <div><span class="badge-soon">{{ t.coming_soon }}</span></div>
+<div id="meal-results">
+    <div class="placeholder">
+        <div class="big">🍽️</div>
+        {{ t.meals_blurb }}
+    </div>
 </div>
 {% endblock %}

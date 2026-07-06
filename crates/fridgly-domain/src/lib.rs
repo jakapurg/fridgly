@@ -14,9 +14,13 @@
 pub mod error;
 pub mod item;
 pub mod locale;
+pub mod meals;
+pub mod product;
 pub mod repository;
 
-pub use error::{DomainError, RepositoryError};
-pub use item::{Item, ItemChanges, ItemStatus, ItemView, NewItem, Urgency};
+pub use error::{CatalogError, DomainError, RepositoryError};
+pub use item::{Item, ItemChanges, ItemStatus, ItemView, NewItem, Subunit, Urgency};
 pub use locale::Locale;
+pub use meals::{MealError, MealSuggester, MealSuggestion, MealType};
+pub use product::{ProductCatalog, ProductInfo};
 pub use repository::ItemRepository;

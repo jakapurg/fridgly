@@ -26,6 +26,13 @@ tokio = { version = "1", features = ["full"] }
 axum = "0.7"
 tower-http = { version = "0.5", features = ["fs", "trace"] }
 
+# Outbound HTTP (external product catalog lookups). rustls avoids a system
+# OpenSSL dependency; only the JSON body decoding feature is needed.
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "rustls-tls",
+] }
+
 # Persistence
 sqlx = { version = "0.8", default-features = false, features = [
     "runtime-tokio",
@@ -43,6 +50,7 @@ askama_axum = "0.4"
 
 # Shared building blocks
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 async-trait = "0.1"

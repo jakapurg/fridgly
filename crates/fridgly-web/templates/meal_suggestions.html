@@ -1,0 +1,26 @@
+{% if let Some(msg) = error %}
+<div class="placeholder">
+    <div class="big">🤔</div>
+    {{ msg }}
+</div>
+{% else if suggestions.is_empty() %}
+<div class="placeholder">
+    <div class="big">🤔</div>
+    {{ t.meals_no_ideas }}
+</div>
+{% else %}
+<div class="meal-list">
+    {% for s in suggestions %}
+    <div class="meal-card">
+        <div class="meal-title">{{ s.title() }}</div>
+        <div class="meal-desc">{{ s.description() }}</div>
+        {% if !s.uses().is_empty() %}
+        <div class="meal-uses">
+            <span class="meal-uses-label">{{ t.meals_uses }}:</span>
+            {% for u in s.uses() %}<span class="meal-tag">{{ u }}</span>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

@@ -29,6 +29,51 @@ impl ItemVm {
     pub fn quantity(&self) -> &str {
         &self.view.item.quantity
     }
+    /// Container unit (e.g. `"packet"`), or empty when none — used as an edit
+    /// input value.
+    pub fn unit(&self) -> &str {
+        self.view.item.unit.as_deref().unwrap_or("")
+    }
+    /// Chip text combining quantity and unit, e.g. `"1 packet"` (or just the
+    /// quantity when no unit is set).
+    pub fn qty_display(&self) -> String {
+        match &self.view.item.unit {
+            Some(unit) => format!("{} {}", self.view.item.quantity, unit),
+            None => self.view.item.quantity.clone(),
+        }
+    }
+    /// Whether this item tracks remaining pieces inside its container.
+    pub fn has_subunit(&self) -> bool {
+        self.view.item.subunit.is_some()
+    }
+    /// Chip text for the remaining pieces, e.g. `"3 eggs"` or `"3"`.
+    pub fn subunit_display(&self) -> String {
+        match &self.view.item.subunit {
+            Some(s) => match &s.unit {
+                Some(unit) => format!("{} {}", s.remaining, unit),
+                None => s.remaining.to_string(),
+            },
+            None => String::new(),
+        }
+    }
+    /// Remaining-pieces count for an edit input (empty when not tracked).
+    pub fn subunit_remaining_input(&self) -> String {
+        self.view
+            .item
+            .subunit
+            .as_ref()
+            .map(|s| s.remaining.to_string())
+            .unwrap_or_default()
+    }
+    /// Subunit unit label (e.g. `"eggs"`) for an edit input, or empty.
+    pub fn subunit_unit(&self) -> &str {
+        self.view
+            .item
+            .subunit
+            .as_ref()
+            .and_then(|s| s.unit.as_deref())
+            .unwrap_or("")
+    }
     pub fn category(&self) -> &str {
         self.view.item.category.as_deref().unwrap_or("")
     }

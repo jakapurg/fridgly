@@ -242,6 +242,13 @@ body {
     margin-top: 1px;
 }
 
+.qty-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    flex: none;
+}
 .qty-chip {
     font-size: 11.5px;
     background: #f1f0ed;
@@ -251,6 +258,11 @@ body {
     flex: none;
     color: #666;
     white-space: nowrap;
+}
+.qty-chip.sub {
+    background: #eef3ee;
+    border-color: rgba(47, 158, 82, 0.25);
+    color: var(--later);
 }
 
 .row-actions {
@@ -315,6 +327,31 @@ body {
 .input:focus {
     outline: none;
     border-color: var(--ink);
+}
+
+/* Row pairing a stepper/number with a free-text unit (quantity + unit,
+   remaining + subunit unit). */
+.qty-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.qty-row .stepper {
+    flex: none;
+}
+.qty-row .unit-input,
+.qty-row input[name="subunit_unit"] {
+    flex: 1;
+    min-width: 0;
+}
+.sub-qty-input {
+    width: 84px;
+    flex: none;
+    text-align: center;
+    font-weight: 600;
+}
+.item.editing .unit-input {
+    max-width: 40%;
 }
 
 .stepper {
@@ -445,6 +482,74 @@ body {
     margin: 2px 0 8px;
 }
 
+/* ---- Barcode scanner ---- */
+.fab-scan {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+.scan-sheet {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+.scan-viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 40vh;
+    margin: 4px auto 10px;
+    background: #000;
+    border-radius: 14px;
+    overflow: hidden;
+}
+.scan-viewport video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.scan-reticle {
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 50%;
+    height: 26%;
+    transform: translateY(-50%);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+}
+.scan-status {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 12px;
+    min-height: 18px;
+}
+.scan-manual-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.scan-manual-row {
+    display: flex;
+    gap: 8px;
+}
+.scan-manual-row .input {
+    flex: 1;
+}
+.scan-manual-row .save-btn.small {
+    width: auto;
+    white-space: nowrap;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
 /* ---- Bottom tab bar ---- */
 .tabbar {
     position: fixed;
@@ -511,4 +616,80 @@ body {
     border: 1px solid var(--line);
     border-radius: 999px;
     padding: 4px 10px;
+}
+
+/* Meal ideas */
+.meal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+/* htmx toggles `.htmx-request` on the indicator while a request is in flight. */
+.htmx-indicator {
+    display: none;
+}
+.htmx-request.htmx-indicator,
+.htmx-request .htmx-indicator {
+    display: flex;
+}
+.spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid var(--line-strong);
+    border-top-color: var(--later);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.meal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+.meal-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+.meal-title {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--ink);
+}
+.meal-desc {
+    margin-top: 4px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #4a4a4a;
+}
+.meal-uses {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+.meal-uses-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+}
+.meal-tag {
+    font-size: 12px;
+    color: var(--later);
+    background: rgba(47, 158, 82, 0.1);
+    border-radius: 999px;
+    padding: 3px 9px;
 }

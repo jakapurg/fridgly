@@ -25,3 +25,18 @@ pub enum DomainError {
     #[error("{field} is required")]
     Required { field: &'static str },
 }
+
+/// Errors that a [`crate::ProductCatalog`] implementation may return.
+///
+/// Like [`RepositoryError`], these are technology-agnostic: an adapter talking
+/// to a specific food database maps its own HTTP/parse failures into these.
+#[derive(Debug, Error)]
+pub enum CatalogError {
+    /// The supplied barcode was empty or not a plausible product code.
+    #[error("invalid barcode")]
+    InvalidBarcode,
+
+    /// The upstream catalog was unreachable or returned an unexpected response.
+    #[error("catalog error: {0}")]
+    Upstream(String),
+}

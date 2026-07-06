@@ -3,5 +3,5 @@
 mod model;
 mod urgency;
 
-pub use model::{Item, ItemChanges, ItemStatus, NewItem};
+pub use model::{Item, ItemChanges, ItemStatus, NewItem, Subunit};
 pub use urgency::{ItemView, Urgency};
